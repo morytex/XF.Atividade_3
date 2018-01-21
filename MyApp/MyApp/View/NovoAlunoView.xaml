@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MyApp.View.NovoAlunoView"
+             Title="Cadastrar Aluno">
+    <ContentPage.Content>
+        <StackLayout Padding="20">
+            <Label Text="Nome" />
+            <Entry x:Name="txtNome" Text="{Binding AlunoModel.Nome}" />
+            <Label Text="RM" />
+            <Entry x:Name="txtRM" Text="{Binding AlunoModel.RM}" />
+            <Label Text="E-mail" />
+            <Entry x:Name="txtEmail" Text="{Binding AlunoModel.Email}" />
+            <Button x:Name="btnSalvar" Text="Salvar" 
+                Command="{Binding OnAdicionarAlunoCMD}"
+                CommandParameter="{Binding AlunoModel}" />
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
