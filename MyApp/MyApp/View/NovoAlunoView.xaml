@@ -3,17 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MyApp.View.NovoAlunoView"
              Title="Cadastrar Aluno">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Salvar" x:Name="btnSalvar" Command="{Binding OnAdicionarAlunoCMD}" 
+                     CommandParameter="{Binding BindingContext, Source={x:Reference Name=rootAluno}}" Order="Primary" Priority="1" />
+    </ContentPage.ToolbarItems>
+
     <ContentPage.Content>
-        <StackLayout Padding="20">
-            <Label Text="Nome" />
-            <Entry x:Name="txtNome" Text="{Binding AlunoModel.Nome}" />
-            <Label Text="RM" />
-            <Entry x:Name="txtRM" Text="{Binding AlunoModel.RM}" />
-            <Label Text="E-mail" />
-            <Entry x:Name="txtEmail" Text="{Binding AlunoModel.Email}" />
-            <Button x:Name="btnSalvar" Text="Salvar" 
-                Command="{Binding OnAdicionarAlunoCMD}"
-                CommandParameter="{Binding AlunoModel}" />
+        <StackLayout x:Name="rootAluno" Padding="7" BindingContext="{Binding Selecionado}">
+            <Entry x:Name="txtNome" Placeholder="Nome" Text="{Binding Nome}" />
+            <Entry x:Name="txtRM" Placeholder="RM" Text="{Binding RM}" />
+            <Entry x:Name="txtEmail" Placeholder="E-mail" Text="{Binding Email}" />
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

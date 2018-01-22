@@ -1,9 +1,5 @@
-﻿using MyApp.ViewModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿using MyApp.Model;
+using MyApp.ViewModel;
 using Xamarin.Forms;
 
 namespace MyApp
