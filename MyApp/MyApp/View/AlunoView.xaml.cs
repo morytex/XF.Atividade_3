@@ -11,5 +11,11 @@ namespace MyApp.View
 		{
 			InitializeComponent ();
 		}
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            App.AlunoVM.Carregar();
+        }
     }
 }

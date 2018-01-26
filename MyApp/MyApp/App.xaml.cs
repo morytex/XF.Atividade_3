@@ -8,6 +8,7 @@ namespace MyApp
     {
         #region ViewModels
         public static AlunoViewModel AlunoVM { get; set; }
+        public static UsuarioViewModel UsuarioVM { get; set; }
         #endregion
 
         public App()
@@ -15,12 +16,13 @@ namespace MyApp
             InitializeComponent();
             InitializeApplication();
 
-            MainPage = new NavigationPage(new View.AlunoView() { BindingContext = App.AlunoVM });
+            MainPage = new NavigationPage(new View.LoginView() { BindingContext = App.UsuarioVM });
         }
 
         private void InitializeApplication()
         {
             if (AlunoVM == null) AlunoVM = new AlunoViewModel();
+            if (UsuarioVM == null) UsuarioVM = new UsuarioViewModel();
         }
 
         protected override void OnStart()

@@ -14,6 +14,10 @@ namespace MyApp.ViewModel
     public class AlunoViewModel : INotifyPropertyChanged
     {
         #region Propriedades
+
+        public Aluno AlunoModel { get; set; }
+        public string Nome { get { return App.UsuarioVM.Nome; } }
+
         private Aluno selecionado;
         public Aluno Selecionado
         {
@@ -24,23 +28,40 @@ namespace MyApp.ViewModel
                 EventPropertyChanged();
             }
         }
+
         public List<Aluno> CopiaListaAlunos;
         public ObservableCollection<Aluno> Alunos { get; set; } = new ObservableCollection<Aluno>();
 
         // UI Events
         public OnAdicionarAlunoCMD OnAdicionarAlunoCMD { get; }
+        public OnEditarAlunoCMD OnEditarAlunoCMD { get; }
+        public OnDeleteAlunoCMD OnDeleteAlunoCMD { get; }
+        public ICommand OnSairCMD { get; private set; }
         public ICommand OnNovoCMD { get; private set; }
+
         #endregion
 
         public AlunoViewModel()
         {
-            AlunoRepository instance = AlunoRepository.Instance;
+            AlunoRepository repository = AlunoRepository.Instance;
+
             OnAdicionarAlunoCMD = new OnAdicionarAlunoCMD(this);
+            OnEditarAlunoCMD = new OnEditarAlunoCMD(this);
+            OnDeleteAlunoCMD = new OnDeleteAlunoCMD(this);
+            OnSairCMD = new Command(OnSair);
             OnNovoCMD = new Command(OnNovo);
 
             CopiaListaAlunos = new List<Aluno>();
-            CopiaListaAlunos = AlunoRepository.GetAlunos().ToList();
-            CopiaListaAlunos.ForEach(ca => Alunos.Add(ca));
+            Carregar();
+        }
+
+        public void Carregar()
+        {
+            Alunos.Clear();
+            CopiaListaAlunos = AlunoRepository.GetAlunos()
+                .OrderBy(x => x.Nome)
+                .ToList();
+            CopiaListaAlunos.ForEach(x => Alunos.Add(x));
         }
 
         public void Adicionar(Aluno paramAluno)
@@ -53,11 +74,38 @@ namespace MyApp.ViewModel
                 App.Current.MainPage.DisplayAlert("Falhou", "Desculpe, ocorreu um erro inesperado =(", "OK");
         }
 
-        private async void OnNovo()
+        public async void Editar()
+        {
+            await App.Current.MainPage.Navigation.PushAsync(
+                new View.NovoAlunoView() { BindingContext = App.AlunoVM });
+        }
+
+        public async void Remover()
+        {
+            if (await App.Current.MainPage.DisplayAlert("Atenção?",
+                string.Format("Tem certeza que deseja remover o {0}?", Selecionado.Nome), "Sim", "Não"))
+            {
+                if (AlunoRepository.RemoverAluno(Selecionado.Id) > 0)
+                {
+                    CopiaListaAlunos.Remove(Selecionado);
+                    Carregar();
+                }
+                else
+                    await App.Current.MainPage.DisplayAlert(
+                            "Falhou", "Desculpe, ocorreu um erro inesperado =(", "OK");
+            }
+        }
+
+        private async void OnSair()
+        {
+            await App.Current.MainPage.Navigation.PopAsync();
+        }
+
+        private void OnNovo()
         {
             App.AlunoVM.Selecionado = new Model.Aluno();
-            await App.Current.MainPage.Navigation
-                .PushAsync(new NovoAlunoView() { BindingContext = App.AlunoVM });
+            App.Current.MainPage.Navigation.PushAsync(
+                new View.NovoAlunoView() { BindingContext = App.AlunoVM });
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -78,16 +126,45 @@ namespace MyApp.ViewModel
             alunoVM = paramVM;
         }
         public event EventHandler CanExecuteChanged;
-        public void DeleteCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-        public bool CanExecute(object parameter)
-        {
-            if (parameter != null) return true;
-
-            return false;
-        }
+        public void AdicionarCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        public bool CanExecute(object parameter) => true;
         public void Execute(object parameter)
         {
             alunoVM.Adicionar(parameter as Aluno);
+        }
+    }
+
+    public class OnEditarAlunoCMD : ICommand
+    {
+        private AlunoViewModel alunoVM;
+        public OnEditarAlunoCMD(AlunoViewModel paramVM)
+        {
+            alunoVM = paramVM;
+        }
+        public event EventHandler CanExecuteChanged;
+        public void EditarCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        public bool CanExecute(object parameter) => (parameter != null);
+        public void Execute(object parameter)
+        {
+            App.AlunoVM.Selecionado = parameter as Aluno;
+            alunoVM.Editar();
+        }
+    }
+
+    public class OnDeleteAlunoCMD : ICommand
+    {
+        private AlunoViewModel alunoVM;
+        public OnDeleteAlunoCMD(AlunoViewModel paramVM)
+        {
+            alunoVM = paramVM;
+        }
+        public event EventHandler CanExecuteChanged;
+        public void DeleteCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        public bool CanExecute(object parameter) => (parameter != null);
+        public void Execute(object parameter)
+        {
+            App.AlunoVM.Selecionado = parameter as Aluno;
+            alunoVM.Remover();
         }
     }
 }
